@@ -1,6 +1,8 @@
 import React, { useState, useRef } from "react";
 import "./App.css";
 import MM1 from "./components/MM1";
+import MM1N from "./components/MM1N";
+
 import { FaCogs, FaChartLine, FaClock } from "react-icons/fa";
 import { GiNetworkBars } from "react-icons/gi";
 import queueSVG from "./queue-illustration.png";
@@ -11,7 +13,7 @@ function App() {
 
   const scrollToModelos = () => {
     if (modelosRef.current) {
-      const offset = 700;
+      const offset = 100;
       const top =
         modelosRef.current.getBoundingClientRect().top +
         window.pageYOffset +
@@ -141,24 +143,31 @@ function App() {
               </span>
             )}
           </button>
-          {/* Tarjeta MM1N (próximamente) */}
-          <div
-            className="relative p-8 rounded-3xl shadow-lg border-2 border-dashed border-gray-600 bg-gray-800 flex flex-col items-center gap-4 opacity-60 cursor-not-allowed"
-            title="Próximamente"
+          {/* Tarjeta MM1N */}
+          <button
+            onClick={() => setModelo("MM1N")}
+            className={`group relative p-8 rounded-3xl shadow-lg border-2 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-300 ${
+              modelo === "MM1N"
+                ? "border-blue-500 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"
+                : "border-gray-600 bg-gray-800"
+            } hover:border-pink-500 hover:shadow-xl hover:-translate-y-2`}
+            title="Modelo M/M/1/N"
           >
             <img
-              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f512.svg"
+              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f512.svg" 
               alt="MM1N"
-              className="w-16 h-16 mb-3"
+              className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
             />
-            <span className="text-xl font-bold text-white">M/M/1/N</span>
+            <span className="text-xl font-bold text-white">M/M/1/N</span> 
             <span className="text-base text-gray-300 text-center">
               Capacidad limitada
-            </span>
-            <span className="absolute top-2 right-2 bg-gray-400 text-white text-sm px-2 py-1 rounded-full">
-              Próximamente
-            </span>
-          </div>
+            </span> 
+            {modelo === "MM1N" && (
+              <span className="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
+                Seleccionado
+              </span>
+            )}
+          </button>
           {/* Tarjeta MM2 (próximamente) */}
           <div
             className="relative p-8 rounded-3xl shadow-lg border-2 border-dashed border-gray-600 bg-gray-800 flex flex-col items-center gap-4 opacity-60 cursor-not-allowed"
@@ -179,7 +188,10 @@ function App() {
           </div>
         </div>
         {/* Renderizar el modelo seleccionado */}
-        <div className="mt-12">{modelo === "MM1" && <MM1 />}</div>
+        <div className="mt-12">
+          {modelo === "MM1" && <MM1 />}
+          {modelo === "MM1N" && <MM1N />}
+        </div>
       </main>
 
       {/* Footer */}
