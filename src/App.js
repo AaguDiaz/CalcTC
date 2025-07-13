@@ -3,6 +3,7 @@ import "./App.css";
 import MM1 from "./components/MM1";
 import MM2 from "./components/MM2";
 import MM1N from "./components/MM1N";
+import MG1 from "./components/MG1";
 
 import { FaCogs, FaChartLine, FaClock } from "react-icons/fa";
 import { GiNetworkBars } from "react-icons/gi";
@@ -139,7 +140,7 @@ function App() {
             title="Modelo M/M/1"
           >
             <img
-              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4ca.svg"
+              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f464.svg"
               alt="MM1"
               className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
             />
@@ -191,7 +192,7 @@ function App() {
             title="Modelo M/M/2"
           >
             <img
-              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f310.svg"
+              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f465.svg"
               alt="MM2"
               className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
             />
@@ -211,42 +212,52 @@ function App() {
             title="Próximamente"
           >
             <img
-              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4e0.svg"
+              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3af.svg"
               alt="M/D/1"
               className="w-16 h-16 mb-3"
             />
             <span className="text-xl font-bold text-white">M/D/1</span>
             <span className="text-base text-gray-300 text-center">
-              Servicio determinista
+              Servicio deterministico
             </span>
             <span className="absolute top-2 right-2 bg-gray-400 text-white text-sm px-2 py-1 rounded-full">
               Próximamente
             </span>
           </div>
           {/* Tarjeta M/G/1 */}
-          <div
-            className="relative p-8 rounded-3xl shadow-lg border-2 border-dashed border-gray-600 bg-gray-800 flex flex-col items-center gap-4 opacity-60 cursor-not-allowed"
-            title="Próximamente"
+          <button
+            onClick={() => setModelo("MG1")}
+            className={`group relative p-8 rounded-3xl shadow-lg border-2 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-300
+              ${
+                modelo === "MG1"
+                  ? "border-blue-500 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"
+                  : "border-gray-600 bg-gray-800"
+              }
+              hover:border-pink-500 hover:shadow-xl hover:-translate-y-2`}
+            title="Modelo M/G/1"
           >
             <img
-              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4dd.svg"
-              alt="M/G/1"
-              className="w-16 h-16 mb-3"
+              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f500.svg"
+              alt="MM2"
+              className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
             />
             <span className="text-xl font-bold text-white">M/G/1</span>
             <span className="text-base text-gray-300 text-center">
               Servicio general
             </span>
-            <span className="absolute top-2 right-2 bg-gray-400 text-white text-sm px-2 py-1 rounded-full">
-              Próximamente
-            </span>
-          </div>
+            {modelo === "MG1" && (
+              <span className="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
+                Seleccionado
+              </span>
+            )}
+          </button>
         </div>
         {/* Renderizar el modelo seleccionado */}
         <div className="mt-12">
           {modelo === "MM1" && <MM1 />}
           {modelo === "MM1N" && <MM1N />}
           {modelo === "MM2" && <MM2 />}
+          {modelo === "MG1" && <MG1 />}
         </div>
       </main>
 
