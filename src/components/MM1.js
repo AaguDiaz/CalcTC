@@ -3,16 +3,18 @@ import { FaExclamationTriangle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 const MM1 = () => {
+  // Estados para los campos de entrada y resultados
   const [lambda, setLambda] = useState("");
   const [mu, setMu] = useState("");
   const [n, setN] = useState("");
-  const [type, setType] = useState("exactamente"); // "exactamente", "al menos", "como maximo"
-  const [context, setContext] = useState("sistema"); // "sistema", "cola"
+  const [type, setType] = useState("exactamente"); // Tipo de cálculo de probabilidad
+  const [context, setContext] = useState("sistema"); // Contexto: sistema o cola
   const [results, setResults] = useState(null);
   const [errors, setErrors] = useState({});
   const [unit, setUnit] = useState("hours");
   const [showClearModal, setShowClearModal] = useState(false);
 
+  // Validación de los campos de entrada
   const validateInputs = () => {
     const λ = parseFloat(lambda);
     const μ = parseFloat(mu);
@@ -38,6 +40,7 @@ const MM1 = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Cálculo de resultados del modelo M/M/1
   const calculateMM1 = () => {
     if (!validateInputs()) return;
 
@@ -46,16 +49,18 @@ const MM1 = () => {
     const nValue = parseFloat(n) || 0;
     const rho = λ / μ;
     const P0 = 1 - rho;
-    const Ls = λ / (μ - λ);
-    const Lq = (λ * λ) / (μ * (μ - λ));
-    const Ws = 1 / (μ - λ);
-    const Wq = λ / (μ * (μ - λ));
-    const timeBetweenArrivals = 1 / λ;
-    const timeBetweenServices = 1 / μ;
+    const Ls = λ / (μ - λ); // Clientes en sistema
+    const Lq = (λ * λ) / (μ * (μ - λ)); // Clientes en cola
+    const Ws = 1 / (μ - λ); // Tiempo en sistema
+    const Wq = λ / (μ * (μ - λ)); // Tiempo en cola
+    const timeBetweenArrivals = 1 / λ; // Tiempo entre llegadas
+    const timeBetweenServices = 1 / μ; // Tiempo entre servicios
 
     let PnResult = null;
+    // Ajuste de n según contexto (en cola o en sistema)
     let nAdjusted = context === "cola" ? nValue + 1 : nValue;
 
+    // Cálculo de probabilidades según el tipo seleccionado
     if (type === "exactamente") {
       PnResult = P0 * Math.pow(rho, nAdjusted);
       PnResult = {
@@ -98,6 +103,7 @@ const MM1 = () => {
     });
   };
 
+  // Limpia todos los campos y resultados
   const clearFields = () => {
     setLambda("");
     setMu("");
@@ -109,6 +115,7 @@ const MM1 = () => {
     setShowClearModal(false);
   };
 
+  // Formatea los números para mostrar con 2 decimales si es necesario
   const formatNumber = (num) => {
     return Number.isInteger(num) ? num : num.toFixed(2).replace(/\.0$/, "");
   };
@@ -319,6 +326,7 @@ const MM1 = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Utilización */}
             <div className="p-4 bg-gray-900 rounded-lg shadow-md">
               <h4 className="text-lg font-medium text-emerald-400">
                 Utilización (ρ)
@@ -331,6 +339,7 @@ const MM1 = () => {
               </p>
             </div>
 
+            {/* Probabilidad de 0 clientes */}
             <div className="p-4 bg-gray-900 rounded-lg shadow-md">
               <h4 className="text-lg font-medium text-emerald-400">
                 Prob. 0 clientes (P₀)
@@ -343,6 +352,7 @@ const MM1 = () => {
               </p>
             </div>
 
+            {/* Clientes en sistema */}
             <div className="p-4 bg-gray-900 rounded-lg shadow-md">
               <h4 className="text-lg font-medium text-emerald-400">
                 Clientes en sistema (L<sub>s</sub>)
@@ -355,6 +365,7 @@ const MM1 = () => {
               </p>
             </div>
 
+            {/* Clientes en cola */}
             <div className="p-4 bg-gray-900 rounded-lg shadow-md">
               <h4 className="text-lg font-medium text-emerald-400">
                 Clientes en cola (L<sub>q</sub>)
@@ -367,6 +378,7 @@ const MM1 = () => {
               </p>
             </div>
 
+            {/* Tiempo en sistema */}
             <div className="p-4 bg-gray-900 rounded-lg shadow-md">
               <h4 className="text-lg font-medium text-emerald-400">
                 Tiempo en sistema (W<sub>s</sub>)
@@ -381,6 +393,7 @@ const MM1 = () => {
               </p>
             </div>
 
+            {/* Tiempo en cola */}
             <div className="p-4 bg-gray-900 rounded-lg shadow-md">
               <h4 className="text-lg font-medium text-emerald-400">
                 Tiempo en cola (W<sub>q</sub>)
@@ -395,6 +408,7 @@ const MM1 = () => {
               </p>
             </div>
 
+            {/* Tiempo entre llegadas */}
             <div className="p-4 bg-gray-900 rounded-lg shadow-md">
               <h4 className="text-lg font-medium text-emerald-400">
                 Tiempo entre llegadas (1/λ)
@@ -409,6 +423,7 @@ const MM1 = () => {
               </p>
             </div>
 
+            {/* Tiempo entre servicios */}
             <div className="p-4 bg-gray-900 rounded-lg shadow-md">
               <h4 className="text-lg font-medium text-emerald-400">
                 Tiempo entre servicios (1/μ)
@@ -423,6 +438,7 @@ const MM1 = () => {
               </p>
             </div>
 
+            {/* Probabilidad para n clientes */}
             {results.Pn && (
               <div className="p-4 bg-gray-900 rounded-lg shadow-md col-span-1 md:col-span-2 lg:col-span-3">
                 <h4 className="text-lg font-medium text-emerald-400">

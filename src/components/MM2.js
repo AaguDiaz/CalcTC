@@ -3,6 +3,7 @@ import { FaExclamationTriangle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 const MM2 = () => {
+  // Estados para los campos de entrada y resultados
   const [lambda, setLambda] = useState("");
   const [mu, setMu] = useState("");
   const [mu1, setMu1] = useState("");
@@ -26,6 +27,7 @@ const MM2 = () => {
     setErrors({});
   };
 
+  // Validación de los campos de entrada
   const validateInputs = () => {
     const λ = parseFloat(lambda);
     const μ = parseFloat(mu);
@@ -62,6 +64,7 @@ const MM2 = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Cálculo de resultados según el tipo de modelo seleccionado
   const calculateMM2 = () => {
     if (!validateInputs()) return;
 
@@ -70,6 +73,7 @@ const MM2 = () => {
     const nValue = parseFloat(n);
 
     if (selection === "MU IGUALES") {
+      // Cálculos para el caso de dos servidores con la misma tasa
       const μ = parseFloat(mu);
       μs = 2 * μ;
       ρ = λ / μs;
@@ -92,6 +96,7 @@ const MM2 = () => {
         n: nValue,
       });
     } else if (selection === "SIN SELECCIÓN") {
+      // Cálculos para el caso sin selección
       const μ1 = parseFloat(mu1);
       const μ2 = parseFloat(mu2);
       const r = μ2 / μ1;
@@ -107,11 +112,11 @@ const MM2 = () => {
         N,
       });
     } else if (selection === "CON SELECCIÓN") {
+      // Cálculos para el caso con selección (resolviendo cuadrática)
       const μ1 = parseFloat(mu1);
       const μ2 = parseFloat(mu2);
       const μ = μ1 + μ2;
       const r = μ2 / μ1;
-      // Resolver cuadrática para rhoCritico
       // rhoCritico^2 * (1 + r^2) - rhoCritico * (2 + r^2) - (2r - 1)*(1 + r) = 0
       const aQuad = 1 + r * r;
       const bQuad = -(2 + r * r);
@@ -135,6 +140,7 @@ const MM2 = () => {
     }
   };
 
+  // Limpia todos los campos y resultados
   const clearFields = () => {
     setLambda("");
     setMu("");
@@ -147,6 +153,7 @@ const MM2 = () => {
     setShowClearModal(false);
   };
 
+  // Formatea los números para mostrar con 4 decimales si es necesario
   const formatNumber = (num) => {
     return num !== undefined && num !== null
       ? Number.isInteger(num)
@@ -161,8 +168,10 @@ const MM2 = () => {
         Modelo M/M/2
       </h2>
 
+      {/* Formulario de entrada de datos */}
       <div className="bg-gradient-to-br from-gray-800 to-gray-700 rounded-2xl p-8 shadow-lg">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Campo para tasa de llegada */}
           <div className="relative">
             <label
               htmlFor="lambda"
@@ -186,6 +195,7 @@ const MM2 = () => {
             )}
           </div>
 
+          {/* Selector de modo de cálculo */}
           <div className="relative">
             <label
               htmlFor="selection"
@@ -205,6 +215,7 @@ const MM2 = () => {
             </select>
           </div>
 
+          {/* Campos para tasas de servicio según selección */}
           {selection === "MU IGUALES" ? (
             <div className="relative">
               <label
@@ -278,6 +289,7 @@ const MM2 = () => {
             </>
           )}
 
+          {/* Campo para n solo si es MU IGUALES */}
           {selection === "MU IGUALES" && (
             <div className="relative">
               <label
@@ -303,6 +315,7 @@ const MM2 = () => {
           )}
         </div>
 
+        {/* Mensaje de error general */}
         {errors.general && (
           <div className="mt-4 p-4 bg-red-900 text-white rounded-lg flex items-center space-x-3 shadow-md">
             <FaExclamationTriangle className="text-yellow-400" size={20} />
@@ -310,6 +323,7 @@ const MM2 = () => {
           </div>
         )}
 
+        {/* Botones de acción */}
         <div className="mt-6 flex space-x-4">
           <button
             onClick={calculateMM2}
@@ -326,6 +340,7 @@ const MM2 = () => {
         </div>
       </div>
 
+      {/* Modal de confirmación para limpiar campos */}
       <AnimatePresence>
         {showClearModal && (
           <motion.div
@@ -366,6 +381,7 @@ const MM2 = () => {
         )}
       </AnimatePresence>
 
+      {/* Resultados */}
       {results && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -376,6 +392,7 @@ const MM2 = () => {
           {/* Resultados para MU IGUALES */}
           {selection === "MU IGUALES" && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Utilización */}
               <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                 <h4 className="text-lg font-medium text-emerald-400">
                   Utilización (ρ)
@@ -387,6 +404,7 @@ const MM2 = () => {
                   Proporción del tiempo que los servidores están ocupados.
                 </p>
               </div>
+              {/* Tiempo en sistema */}
               <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                 <h4 className="text-lg font-medium text-emerald-400">
                   Tiempo en sistema (W
@@ -404,6 +422,7 @@ const MM2 = () => {
                   Tiempo promedio en el sistema.
                 </p>
               </div>
+              {/* Clientes en sistema */}
               <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                 <h4 className="text-lg font-medium text-emerald-400">
                   Clientes en sistema (L
@@ -419,6 +438,7 @@ const MM2 = () => {
                   Promedio de clientes en el sistema.
                 </p>
               </div>
+              {/* Probabilidad de 0 clientes */}
               <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                 <h4 className="text-lg font-medium text-emerald-400">
                   Prob. 0 clientes (P₀)
@@ -430,6 +450,7 @@ const MM2 = () => {
                   Probabilidad de 0 clientes.
                 </p>
               </div>
+              {/* Tiempo en cola */}
               <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                 <h4 className="text-lg font-medium text-emerald-400">
                   Tiempo en cola (Wq)
@@ -443,6 +464,7 @@ const MM2 = () => {
                   Tiempo promedio en cola.
                 </p>
               </div>
+              {/* Clientes en cola */}
               <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                 <h4 className="text-lg font-medium text-emerald-400">
                   Clientes en cola (Lq)
@@ -454,6 +476,7 @@ const MM2 = () => {
                   Promedio de clientes en cola.
                 </p>
               </div>
+              {/* Probabilidad para n clientes */}
               {results.Pn !== null && (
                 <div className="p-4 bg-gray-900 rounded-lg shadow-md col-span-1 md:col-span-2 lg:col-span-3">
                   <h4 className="text-lg font-medium text-emerald-400">
@@ -469,6 +492,7 @@ const MM2 = () => {
           {/* Resultados para SIN SELECCIÓN y CON SELECCIÓN */}
           {(selection === "SIN SELECCIÓN" || selection === "CON SELECCIÓN") && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* ρ crítico */}
               <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                 <h4 className="text-lg font-medium text-emerald-400">
                   ρ crítico
@@ -480,6 +504,7 @@ const MM2 = () => {
                   Valor crítico de utilización.
                 </p>
               </div>
+              {/* π₀ */}
               <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                 <h4 className="text-lg font-medium text-emerald-400">π₀</h4>
                 <p className="text-2xl font-bold text-white">
@@ -489,6 +514,7 @@ const MM2 = () => {
                   Probabilidad de 0 clientes.
                 </p>
               </div>
+              {/* N */}
               <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                 <h4 className="text-lg font-medium text-emerald-400">N</h4>
                 <p className="text-2xl font-bold text-white">

@@ -9,9 +9,12 @@ import { GiNetworkBars } from "react-icons/gi";
 import queueSVG from "./queue-illustration.png";
 
 function App() {
+  // Estado para el modelo seleccionado
   const [modelo, setModelo] = useState("MM1");
+  // Referencia para hacer scroll a la sección de modelos
   const modelosRef = useRef(null);
 
+  // Función para hacer scroll suave a la sección de modelos
   const scrollToModelos = () => {
     if (modelosRef.current) {
       const offset = 700;
@@ -24,11 +27,13 @@ function App() {
   };
 
   return (
+    // Contenedor principal con fondo oscuro y transición de color
     <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100 transition-colors duration-300">
-      {/* Header */}
+      {/* Header principal */}
       <header className="w-full bg-gradient-to-b from-gray-900 via-gray-800 to-gray-700 text-white shadow-md py-3 border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <div className="flex items-center space-x-4">
+            {/* Logo */}
             <img
               src={require("./calculadora.png")}
               alt="CalcTC Logo"
@@ -41,7 +46,7 @@ function App() {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Sección de bienvenida (Hero) */}
       <section className="relative flex flex-col items-center justify-center gap-6 py-16 px-6 text-center">
         <div className="max-w-3xl mx-auto z-10">
           <h2 className="text-4xl md:text-5xl font-semibold mb-4 text-gray-100">
@@ -53,6 +58,7 @@ function App() {
             <br /> Aprende, experimenta y resuelve modelos de manera visual y
             sencilla.
           </p>
+          {/* Botón para ir a la sección de modelos */}
           <button
             onClick={scrollToModelos}
             className="px-10 py-4 bg-gradient-to-r from-gray-600 to-gray-500 text-white font-semibold rounded-xl border border-gray-700 transition-all duration-300 ease-in-out hover:from-emerald-500 hover:to-emerald-400 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
@@ -62,6 +68,7 @@ function App() {
         </div>
       </section>
 
+      {/* Sección informativa sobre teoría de colas */}
       <section
         ref={modelosRef}
         className="max-w-5xl mx-auto w-full mt-16 mb-16 p-6 md:p-12"
@@ -80,6 +87,7 @@ function App() {
               reales. Permite optimizar procesos en bancos, hospitales, redes y
               más.
             </p>
+            {/* Tarjetas informativas */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
               <div className="flex flex-col items-center bg-gray-800/90 rounded-xl p-6 shadow-md text-center">
                 <FaClock className="text-purple-400 mb-3" size={32} />
@@ -116,6 +124,7 @@ function App() {
         <h4 className="text-2xl md:text-3xl font-bold mb-10 text-center text-white">
           Prueba nuestros modelos de teoría de colas
         </h4>
+        {/* Tarjetas de selección de modelos */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Tarjeta MM1 */}
           <button
@@ -196,7 +205,7 @@ function App() {
               </span>
             )}
           </button>
-          {/* Tarjeta M/D/1 (próximamente) */}
+          {/* Tarjeta M/D/1 */}
           <div
             className="relative p-8 rounded-3xl shadow-lg border-2 border-dashed border-gray-600 bg-gray-800 flex flex-col items-center gap-4 opacity-60 cursor-not-allowed"
             title="Próximamente"
@@ -214,7 +223,7 @@ function App() {
               Próximamente
             </span>
           </div>
-          {/* Tarjeta M/G/1 (próximamente) */}
+          {/* Tarjeta M/G/1 */}
           <div
             className="relative p-8 rounded-3xl shadow-lg border-2 border-dashed border-gray-600 bg-gray-800 flex flex-col items-center gap-4 opacity-60 cursor-not-allowed"
             title="Próximamente"
