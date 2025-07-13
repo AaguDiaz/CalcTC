@@ -209,9 +209,9 @@ const MM2 = () => {
               onChange={handleSelectionChange}
               className="w-full p-4 pt-6 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400 appearance-none cursor-pointer"
             >
-              <option value="MU IGUALES">MU IGUALES</option>
-              <option value="SIN SELECCIÓN">SIN SELECCIÓN</option>
-              <option value="CON SELECCIÓN">CON SELECCIÓN</option>
+              <option value="MU IGUALES">Iguales (μ)</option>
+              <option value="SIN SELECCIÓN">Sin selección</option>
+              <option value="CON SELECCIÓN">Con selección</option>
             </select>
           </div>
 
