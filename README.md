@@ -9,7 +9,7 @@ Una herramienta interactiva para analizar y simular sistemas de colas, ideal par
 
 ## 🚀 Características
 
-- **Modelos soportados:** M/M/1, M/M/1/N, M/M/2, y más.
+- **Modelos soportados:** M/M/1, M/M/1/N, M/M/2, Con Prioridades, M/D/1 y M/G/1.
 - **Cálculos automáticos:** Tiempo de espera, longitud de cola, utilización, etc.
 - **Simulación visual:** Gráficas y tablas dinámicas.
 - **Interfaz intuitiva:** Fácil de usar y personalizar.
