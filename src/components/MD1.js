@@ -1,50 +1,42 @@
+// MD1.js
 import React, { useState } from "react";
 import { FaExclamationTriangle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { calcularResultados } from "./calculosMG1yMD1"; 
 
-const MG1 = () => {
-  // Estados para los inputs principales
-  // E(n): Esperanza matemática promedio del número de clientes en sistema
-  // E(T): Esperanza matemática del tiempo que un cliente está en el sistema
-  // E(s): Esperanza matemática promedio del tiempo que tarda en atender a un solo cliente
-  // tita: Varianza o desviación estándar del tiempo de servicio
-  const [lambda, setLambda] = useState(""); // Tasa de llegada
-  const [es, setEs] = useState(""); // E(s): Tiempo medio de servicio
-  const [tita, setTita] = useState(""); // tita^2: Varianza del tiempo de servicio
+const MD1 = () => {
+  // Estados, sin tita (varianza)
+  const [lambda, setLambda] = useState("");
+  const [es, setEs] = useState("");
+  const [esUnit, setEsUnit] = useState("horas");
   const [results, setResults] = useState(null);
   const [errors, setErrors] = useState({});
   const [showClearModal, setShowClearModal] = useState(false);
-  // Unidades para E(s) y varianza
-  const [esUnit, setEsUnit] = useState("horas");
-  const [titaUnit, setTitaUnit] = useState("horas2");
 
-  // Validación de los campos de entrada
+  // ... (funciones como formatNumber, clearFields, etc., se pueden reutilizar)
+
   const validateInputs = () => {
     const lambdaValue = parseFloat(lambda);
     const esValue = parseFloat(es);
-    const titaValue = parseFloat(tita);
     const newErrors = {};
     if (!lambda) newErrors.lambda = "Este campo es obligatorio";
     if (!es) newErrors.es = "Este campo es obligatorio";
-    if (!tita) newErrors.tita = "Este campo es obligatorio";
     if (lambdaValue < 0) newErrors.lambda = "λ debe ser positivo";
     if (esValue <= 0) newErrors.es = "E(s) debe ser positivo";
-    if (titaValue < 0) newErrors.tita = "La varianza debe ser positiva";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Cálculo de resultados del modelo M/G/1
   const HandleCalcular = () => {
     if (!validateInputs()) return;
     
+    // Llamar a la lógica compartida con tita = 0
     const calculatedData = calcularResultados({
       lambda,
       es,
-      tita,
+      tita: "0", // Varianza es siempre 0 en M/D/1
       esUnit,
-      titaUnit,
+      titaUnit: "horas2", // La unidad no importa si el valor es 0
     });
 
     if (calculatedData.error) {
@@ -55,12 +47,10 @@ const MG1 = () => {
       setErrors({});
     }
   };
-
   // Limpia todos los campos y resultados
   const clearFields = () => {
     setLambda("");
     setEs("");
-    setTita("");
     setResults(null);
     setErrors({});
     setShowClearModal(false);
@@ -136,40 +126,6 @@ const MG1 = () => {
             </div>
             {errors.es && (
               <p className="text-red-500 text-sm mt-1">{errors.es}</p>
-            )}
-          </div>
-          {/* Input: Varianza */}
-          <div className="relative">
-            <label
-              htmlFor="tita"
-              className="block text-emerald-400 text-base font-medium mb-8"
-            >
-              θ: Varianza del tiempo de servicio
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                id="tita"
-                value={tita}
-                onChange={(e) => setTita(e.target.value)}
-                className="w-full p-4 pt-6 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
-                placeholder="Ej. 0.04"
-                step="0.01"
-                min="0"
-                required
-              />
-              <select
-                value={titaUnit}
-                onChange={(e) => setTitaUnit(e.target.value)}
-                className="p-2 bg-gray-700 text-gray-100 border border-gray-600 rounded-lg focus:outline-none cursor-pointer"
-              >
-                <option value="horas">horas</option>
-                <option value="min">minutos</option>
-                <option value="seg">segundos</option>
-              </select>
-            </div>
-            {errors.tita && (
-              <p className="text-red-500 text-sm mt-1">{errors.tita}</p>
             )}
           </div>
         </div>
@@ -276,7 +232,7 @@ const MG1 = () => {
                 <span className="text-base text-gray-400">clientes</span>
               </p>
               <p className="text-sm text-gray-400 mt-1">
-                E(n) = (ρ / (1-ρ)) × (1 - (ρ/2)(1-μ²θ²))
+                E(n) = (ρ / (1-ρ)) × (1 - (ρ/2))
               </p>
             </div>
             <div className="p-4 bg-gray-900 rounded-lg shadow-md">
@@ -292,7 +248,7 @@ const MG1 = () => {
                 <span className="text-base text-gray-400">minutos</span>
               </p>
               <p className="text-sm text-gray-400 mt-1">
-                E(T) = (1 / μ(1-ρ)) × (1 - (ρ/2)(1-μ²θ²))
+                E(T) = (1 / μ(1-ρ)) × (1 - (ρ/2))
               </p>
             </div>
             <div className="p-4 bg-gray-900 rounded-lg shadow-md">
@@ -326,4 +282,4 @@ const MG1 = () => {
   );
 };
 
-export default MG1;
+export default MD1;
