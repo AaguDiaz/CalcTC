@@ -56,39 +56,41 @@ const MM1 = () => {
     const timeBetweenArrivals = 1 / λ; // Tiempo entre llegadas
     const timeBetweenServices = 1 / μ; // Tiempo entre servicios
 
-    let PnResult = null;
-    // Ajuste de n según contexto (en cola o en sistema)
-    let nAdjusted = context === "cola" ? nValue + 1 : nValue;
-
-    // Cálculo de probabilidades según el tipo seleccionado
-    if (type === "exactamente") {
-      PnResult = P0 * Math.pow(rho, nAdjusted);
-      PnResult = {
-        value: PnResult,
-        description: `Probabilidad exacta de ${nValue} cliente(s) ${
-          context === "cola" ? "en cola" : "en sistema"
-        }: ${formatNumber(PnResult * 100)}%`,
-      };
-    } else if (type === "al menos") {
-      PnResult = {
-        value: 1 - Math.pow(1 - rho, nAdjusted),
-        description: `Probabilidad de al menos ${nValue} cliente(s) ${
-          context === "cola" ? "en cola" : "en sistema"
-        }: 1 - P(k < ${nValue}) = ${formatNumber(
-          (1 - Math.pow(1 - rho, nAdjusted)) * 100
-        )}%`,
-      };
-    } else if (type === "como maximo") {
-      PnResult = {
-        value: 1 - Math.pow(rho, nAdjusted + 1),
-        description: `Probabilidad de como máximo ${nValue} cliente(s) ${
-          context === "cola" ? "en cola" : "en sistema"
-        }: 1 - ρ^(${nAdjusted + 1}) = ${formatNumber(
-          (1 - Math.pow(rho, nAdjusted + 1)) * 100
-        )}%`,
-      };
+    
+    // Cálculo de probabilidad Pn si corresponde
+    let pnResult = null;
+    const nProbValue = parseInt(nValue, 10);
+    if (nValue !== "" && !isNaN(nProbValue)) {
+      const nAdjusted = context === "cola" ? nProbValue + 1 : nProbValue;
+      let description = `El valor n=${nProbValue} está fuera de los límites del sistema.`;
+      if (nAdjusted >= 0 && nAdjusted <= n) {
+        if (type === "exactamente") {
+          // Probabilidad exacta de n clientes
+          const probValue = P0 * Math.pow(rho, nAdjusted);
+          description = `Pₙ = ρⁿ * P₀  ➔  P${nAdjusted} = ${formatNumber(
+            rho
+          )} ^ ${nAdjusted} * ${formatNumber(P0)} = ${formatNumber(
+            probValue
+          )} (${(probValue * 100).toFixed(2)}%)`;
+        } else if (type === "al menos") {
+          // Probabilidad de al menos n clientes (solo descripción conceptual)
+          description = `Σ (de k=${nAdjusted} a ∞) = Pₙ + Pₙ₊₁ + ... ∞`;
+        } else {
+          // como maximo
+          let sumProb = P0;
+          let sumDescription = "";
+          for (let k = 0; k <= nAdjusted; k++) {
+            let currentPk = P0 * Math.pow(rho, k);
+            sumProb += currentPk;
+            sumDescription += `P${k}` + (k < nAdjusted ? " + " : "");
+          }
+          description = `Σ (k=0..${nAdjusted}) = ${sumDescription} = ${formatNumber(
+            sumProb
+          )} (${(sumProb * 100).toFixed(2)}%)`;
+        }
+      }
+      pnResult = { description };
     }
-
     setResults({
       rho,
       P0,
@@ -98,7 +100,7 @@ const MM1 = () => {
       Wq,
       timeBetweenArrivals,
       timeBetweenServices,
-      Pn: PnResult,
+      Pn: pnResult,
       n: nValue,
     });
   };
