@@ -83,7 +83,7 @@ const MM2 = () => {
       Lq = Math.pow(ρ, 2) / (1 - ρ);
       Wq = Lq / λ;
       if (n !== "") {
-        Pn = (1 - ρ) * Math.pow(ρ, nValue);
+        Pn = (1 - nValue) * Math.pow(ρ, nValue);
       }
       setResults({
         ρ,
