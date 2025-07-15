@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaExclamationTriangle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import { calcularResultados } from "./calculosMG1yMD1"; 
+import { calcularResultados } from "./calculosMG1yMD1";
 
 const MG1 = () => {
   // Estados para los inputs principales
@@ -11,7 +11,7 @@ const MG1 = () => {
   // tita: Varianza o desviación estándar del tiempo de servicio
   const [lambda, setLambda] = useState(""); // Tasa de llegada
   const [es, setEs] = useState(""); // E(s): Tiempo medio de servicio
-  const [tita, setTita] = useState(""); // tita^2: Varianza del tiempo de servicio
+  const [tita, setTita] = useState(""); // tita: Varianza del tiempo de servicio
   const [results, setResults] = useState(null);
   const [errors, setErrors] = useState({});
   const [showClearModal, setShowClearModal] = useState(false);
@@ -38,7 +38,7 @@ const MG1 = () => {
   // Cálculo de resultados del modelo M/G/1
   const HandleCalcular = () => {
     if (!validateInputs()) return;
-    
+
     const calculatedData = calcularResultados({
       lambda,
       es,

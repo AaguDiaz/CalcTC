@@ -1,5 +1,3 @@
-// queuingLogic.js
-
 export const calcularResultados = ({ lambda, es, tita, esUnit, titaUnit }) => {
   const lambdaValue = parseFloat(lambda);
   let esValue = parseFloat(es);
@@ -13,8 +11,8 @@ export const calcularResultados = ({ lambda, es, tita, esUnit, titaUnit }) => {
   let titaStd = titaValue;
   if (titaUnit === "minutos" || titaUnit === "min") titaStd /= 60;
   if (titaUnit === "segundos" || titaUnit === "seg") titaStd /= 3600;
-  
-  const titaVar = Math.pow(titaStd, 2); // Varianza en horas^2
+
+  const titaVar = Math.pow(titaStd, 2); // Varianza en horas
 
   // --- Cálculos principales ---
   const mu = 1 / esValue;
@@ -22,16 +20,20 @@ export const calcularResultados = ({ lambda, es, tita, esUnit, titaUnit }) => {
 
   // Validar condición de estabilidad (rho < 1)
   if (rho >= 1) {
-    return { error: "El factor de utilización (ρ) debe ser menor a 1. La tasa de llegada es demasiado alta para la capacidad de servicio." };
+    return {
+      error:
+        "El factor de utilización (ρ) debe ser menor a 1. La tasa de llegada es demasiado alta para la capacidad de servicio.",
+    };
   }
 
-  // Fórmulas principales del M/G/1 (basadas en el código original)
+  // Fórmulas principales del M/G/1
   const en = (rho / (1 - rho)) * (1 - (rho / 2) * (1 - mu * mu * titaVar));
-  const et_direct = (1 / (mu * (1 - rho))) * (1 - (rho / 2) * (1 - mu * mu * titaVar));
+  const et_direct =
+    (1 / (mu * (1 - rho))) * (1 - (rho / 2) * (1 - mu * mu * titaVar));
 
   // --- Cálculos: Lq y Wq ---
-  const lq = (lambdaValue * lambdaValue ) / ( mu * (mu - lambdaValue));
-  const wq = (lambdaValue) / ( mu * (mu - lambdaValue));
+  const lq = (lambdaValue * lambdaValue) / (mu * (mu - lambdaValue));
+  const wq = lambdaValue / (mu * (mu - lambdaValue));
 
   return {
     mu,

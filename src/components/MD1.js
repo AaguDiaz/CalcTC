@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { FaExclamationTriangle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import { calcularResultados } from "./calculosMG1yMD1"; 
+import { calcularResultados } from "./calculosMG1yMD1";
 
 const MD1 = () => {
   // Estados, sin tita (varianza)
@@ -12,8 +12,6 @@ const MD1 = () => {
   const [results, setResults] = useState(null);
   const [errors, setErrors] = useState({});
   const [showClearModal, setShowClearModal] = useState(false);
-
-  // ... (funciones como formatNumber, clearFields, etc., se pueden reutilizar)
 
   const validateInputs = () => {
     const lambdaValue = parseFloat(lambda);
@@ -29,7 +27,7 @@ const MD1 = () => {
 
   const HandleCalcular = () => {
     if (!validateInputs()) return;
-    
+
     // Llamar a la lógica compartida con tita = 0
     const calculatedData = calcularResultados({
       lambda,
