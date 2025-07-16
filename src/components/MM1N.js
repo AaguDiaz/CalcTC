@@ -16,7 +16,8 @@ const MM1N = () => {
   // Estados para los resultados y errores
   const [results, setResults] = useState(null);
   const [errors, setErrors] = useState({});
-  const [unit, setUnit] = useState("hours");
+  const [unit, setUnit] = useState("hours"); // Para mostrar resultados en horas/minutos
+  const [muUnit, setMuUnit] = useState("hours"); // Unidad de ingreso de mu
   const [showClearModal, setShowClearModal] = useState(false);
 
   // Validación de los campos de entrada
@@ -50,7 +51,11 @@ const MM1N = () => {
     if (!validateInputs()) return;
 
     const l = parseFloat(lambda);
-    const m = parseFloat(mu);
+    let m = parseFloat(mu);
+    // Conversión de mu si la unidad es minutos
+    if (muUnit === "minutes" && m > 0) {
+      m = 60 / m; // μ en horas
+    }
     const N = parseInt(capacity, 10);
     const rho = l / m;
     const rhoN1 = Math.pow(rho, N + 1);
@@ -190,17 +195,27 @@ const MM1N = () => {
             >
               Tasa de servicio (μ)
             </label>
-            <input
-              type="number"
-              id="mu"
-              value={mu}
-              onChange={(e) => setMu(e.target.value)}
-              className="w-full p-4 pt-6 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
-              placeholder="Ej. 6 (clientes/hora)"
-              step="0.1"
-              min="0"
-              required
-            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                id="mu"
+                value={mu}
+                onChange={(e) => setMu(e.target.value)}
+                className="w-full p-4 pt-6 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                placeholder={muUnit === "hours" ? "Ej. 6" : "Ej. 10"}
+                step="0.1"
+                min="0"
+                required
+              />
+              <select
+                value={muUnit}
+                onChange={(e) => setMuUnit(e.target.value)}
+                className="p-2 bg-gray-700 text-gray-100 border border-gray-600 rounded-lg focus:outline-none cursor-pointer"
+              >
+                <option value="hours">horas</option>
+                <option value="minutes">minutos</option>
+              </select>
+            </div>
             {errors.mu && (
               <p className="text-red-500 text-sm mt-1">{errors.mu}</p>
             )}
@@ -388,7 +403,10 @@ const MM1N = () => {
                 Factor de Utilización (ρ)
               </h4>
               <p className="text-2xl font-bold text-white">
-                {formatNumber(results.rho)}
+                {formatNumber(results.rho)}{" "}
+                <span className="text-base text-gray-400">
+                  ({formatNumber(results.rho * 100)}%)
+                </span>
               </p>
               <p className="text-sm text-gray-400 mt-1">
                 Tráfico ofrecido al sistema.
