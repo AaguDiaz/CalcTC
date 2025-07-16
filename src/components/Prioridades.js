@@ -339,7 +339,7 @@ const Prioridad = () => {
             {/* Wq1 */}
             <div className="p-4 bg-gray-900 rounded-lg">
               <h4 className="text-lg font-medium text-emerald-400">
-                Tiempo de espera de Cola Clase 1 (W1)
+                Tiempo de espera de Cola Clase 1 (Wq1)
               </h4>
               <p className="text-2xl font-bold text-white mt-2">
                 {formatNumber(results.wq1)}
