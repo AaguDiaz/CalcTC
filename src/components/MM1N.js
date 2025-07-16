@@ -503,7 +503,7 @@ const MM1N = () => {
             {/* γ */}
             <div className="p-4 bg-gray-900 rounded-lg shadow-md">
               <h4 className="text-lg font-medium text-emerald-400">
-                Tasa de Rechazo (γ)
+                Tasa de Rechazo (ζ)
               </h4>
               <p className="text-2xl font-bold text-white">
                 {formatNumber(results.gamma)}
@@ -527,7 +527,7 @@ const MM1N = () => {
             {/* Yo */}
             <div className="p-4 bg-gray-900 rounded-lg shadow-md">
               <h4 className="text-lg font-medium text-emerald-400">
-                Rendimiento de salida (yo)
+                Rendimiento de salida (Yo)
               </h4>
               <p className="text-2xl font-bold text-white">
                 {formatNumber(results.yo)}
