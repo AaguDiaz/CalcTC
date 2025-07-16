@@ -64,7 +64,7 @@ const MD1 = () => {
     <div className="space-y-8 w-full">
       {/* Header del modelo */}
       <h2 className="text-2xl font-semibold text-white border-b border-gray-700 pb-2 flex items-center gap-2">
-        Modelo M/G/1
+        Modelo M/D/1
       </h2>
       {/* Formulario de entrada */}
       <div className="bg-gradient-to-br from-gray-800 to-gray-700 rounded-2xl p-8 shadow-lg">
