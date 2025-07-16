@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import "./App.css";
 import MM1 from "./components/MM1";
 import MM2 from "./components/MM2";
@@ -14,6 +15,41 @@ import queueSVG from "./queue-illustration.png";
 function App() {
   // Estado para el modelo seleccionado
   const [modelo, setModelo] = useState("MM1");
+  // Estado para mostrar el modal de teoría
+  const [hoveredModel, setHoveredModel] = useState(null);
+  // Teorías de cada modelo
+  const teorias = {
+    MM1: {
+      titulo: "M/M/1",
+      texto:
+        "Modelo clásico de cola con llegadas y tiempos de servicio exponenciales. Cuenta con un solo servidor y una capacidad infinita. Los clientes son atendidos en orden de llegada (FIFO). Es útil para analizar el tiempo promedio en el sistema, la longitud esperada de la cola y la utilización del servidor.",
+    },
+    MM1N: {
+      titulo: "M/M/1/N",
+      texto:
+        "Extensión del modelo M/M/1 con una capacidad máxima de N clientes (incluyendo al que está siendo atendido). Si el sistema está lleno, los nuevos clientes son rechazados. Representa sistemas con espacio o recursos limitados.",
+    },
+    MM2: {
+      titulo: "M/M/2",
+      texto:
+        "Similar al M/M/1 pero con dos servidores en paralelo. Las llegadas siguen una distribución exponencial y los tiempos de servicio también. Ambos servidores atienden de forma independiente. Permite analizar cómo aumenta la eficiencia del sistema al agregar más capacidad de atención.",
+    },
+    MG1: {
+      titulo: "M/G/1",
+      texto:
+        "Modelo de cola con llegadas exponenciales y un solo servidor, pero con tiempos de servicio de distribución general (no necesariamente exponencial). Se utiliza para analizar el impacto de la variabilidad en los tiempos de servicio sobre el rendimiento del sistema.",
+    },
+    MD1: {
+      titulo: "M/D/1",
+      texto:
+        "Caso particular del M/G/1 en el que los tiempos de servicio son determinísticos (constantes). Tiene un solo servidor y permite estudiar sistemas donde la atención siempre tarda lo mismo, reduciendo la variabilidad.",
+    },
+    Prioridad: {
+      titulo: "Colas con Prioridades",
+      texto:
+        "Modelos en los que los clientes tienen diferentes niveles de prioridad para ser atendidos. Se puede implementar con interrupciones o sin ellas. Es útil en sistemas como hospitales, redes de computadoras o atención diferenciada según tipo de usuario.",
+    },
+  };
   // Referencia para hacer scroll a la sección de modelos
   const modelosRef = useRef(null);
 
@@ -128,167 +164,201 @@ function App() {
           Prueba nuestros modelos de teoría de colas
         </h4>
         {/* Tarjetas de selección de modelos */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Tarjeta MM1 */}
-          <button
-            onClick={() => setModelo("MM1")}
-            className={`group relative p-8 rounded-3xl shadow-lg border-2 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-300
+        <div className="relative">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Tarjeta MM1 */}
+            <button
+              onClick={() => setModelo("MM1")}
+              className={`group relative p-8 rounded-3xl shadow-lg border-2 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-300
               ${
                 modelo === "MM1"
                   ? "border-blue-500 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"
                   : "border-gray-600 bg-gray-800"
               }
               hover:border-pink-500 hover:shadow-xl hover:-translate-y-2`}
-            title="Modelo M/M/1"
-          >
-            <img
-              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f464.svg"
-              alt="MM1"
-              className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
-            />
-            <span className="text-xl font-bold text-white">M/M/1</span>
-            <span className="text-base text-gray-300 text-center">
-              Cola simple, un solo servidor
-            </span>
-            {modelo === "MM1" && (
-              <span className="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
-                Seleccionado
+              title="Modelo M/M/1"
+              onMouseEnter={() => setHoveredModel("MM1")}
+              onMouseLeave={() => setHoveredModel(null)}
+            >
+              <img
+                src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f464.svg"
+                alt="MM1"
+                className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
+              />
+              <span className="text-xl font-bold text-white">M/M/1</span>
+              <span className="text-base text-gray-300 text-center">
+                Cola simple, un solo servidor
               </span>
-            )}
-          </button>
-          {/* Tarjeta MM1N */}
-          <button
-            onClick={() => setModelo("MM1N")}
-            className={`group relative p-8 rounded-3xl shadow-lg border-2 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-300 ${
-              modelo === "MM1N"
-                ? "border-blue-500 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"
-                : "border-gray-600 bg-gray-800"
-            } hover:border-pink-500 hover:shadow-xl hover:-translate-y-2`}
-            title="Modelo M/M/1/N"
-          >
-            <img
-              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f512.svg"
-              alt="MM1N"
-              className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
-            />
-            <span className="text-xl font-bold text-white">M/M/1/N</span>
-            <span className="text-base text-gray-300 text-center">
-              Capacidad limitada
-            </span>
-            {modelo === "MM1N" && (
-              <span className="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
-                Seleccionado
+              {modelo === "MM1" && (
+                <span className="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
+                  Seleccionado
+                </span>
+              )}
+            </button>
+            {/* Tarjeta MM1N */}
+            <button
+              onClick={() => setModelo("MM1N")}
+              className={`group relative p-8 rounded-3xl shadow-lg border-2 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-300 ${
+                modelo === "MM1N"
+                  ? "border-blue-500 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"
+                  : "border-gray-600 bg-gray-800"
+              } hover:border-pink-500 hover:shadow-xl hover:-translate-y-2`}
+              title="Modelo M/M/1/N"
+              onMouseEnter={() => setHoveredModel("MM1N")}
+              onMouseLeave={() => setHoveredModel(null)}
+            >
+              <img
+                src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f512.svg"
+                alt="MM1N"
+                className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
+              />
+              <span className="text-xl font-bold text-white">M/M/1/N</span>
+              <span className="text-base text-gray-300 text-center">
+                Capacidad limitada
               </span>
-            )}
-          </button>
-          {/* Tarjeta MM2 */}
-          <button
-            onClick={() => setModelo("MM2")}
-            className={`group relative p-8 rounded-3xl shadow-lg border-2 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-300
+              {modelo === "MM1N" && (
+                <span className="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
+                  Seleccionado
+                </span>
+              )}
+            </button>
+            {/* Tarjeta MM2 */}
+            <button
+              onClick={() => setModelo("MM2")}
+              className={`group relative p-8 rounded-3xl shadow-lg border-2 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-300
               ${
                 modelo === "MM2"
                   ? "border-blue-500 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"
                   : "border-gray-600 bg-gray-800"
               }
               hover:border-pink-500 hover:shadow-xl hover:-translate-y-2`}
-            title="Modelo M/M/2"
-          >
-            <img
-              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f465.svg"
-              alt="MM2"
-              className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
-            />
-            <span className="text-xl font-bold text-white">M/M/2</span>
-            <span className="text-base text-gray-300 text-center">
-              Dos servidores en paralelo
-            </span>
-            {modelo === "MM2" && (
-              <span className="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
-                Seleccionado
+              title="Modelo M/M/2"
+              onMouseEnter={() => setHoveredModel("MM2")}
+              onMouseLeave={() => setHoveredModel(null)}
+            >
+              <img
+                src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f465.svg"
+                alt="MM2"
+                className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
+              />
+              <span className="text-xl font-bold text-white">M/M/2</span>
+              <span className="text-base text-gray-300 text-center">
+                Dos servidores en paralelo
               </span>
-            )}
-          </button>
-          {/* Tarjeta Prioridades */}
-          <button
-            onClick={() => setModelo("Prioridad")}
-            className={`group relative p-8 rounded-3xl shadow-lg border-2 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-300
+              {modelo === "MM2" && (
+                <span className="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
+                  Seleccionado
+                </span>
+              )}
+            </button>
+            {/* Tarjeta Prioridades */}
+            <button
+              onClick={() => setModelo("Prioridad")}
+              className={`group relative p-8 rounded-3xl shadow-lg border-2 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-300
               ${
                 modelo === "Prioridad"
                   ? "border-blue-500 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"
                   : "border-gray-600 bg-gray-800"
               }
               hover:border-pink-500 hover:shadow-xl hover:-translate-y-2`}
-            title="Modelo Con Prioridades"
-          >
-            <img
-              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4f6.svg"
-              alt="Nivel Prioridad"
-              className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
-            />
-            <span className="text-xl font-bold text-white">Prioridades</span>
-            <span className="text-base text-gray-300 text-center">
-              Colas con prioridades
-            </span>
-            {modelo === "Prioridad" && (
-              <span className="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
-                Seleccionado
+              title="Modelo Con Prioridades"
+              onMouseEnter={() => setHoveredModel("Prioridad")}
+              onMouseLeave={() => setHoveredModel(null)}
+            >
+              <img
+                src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4f6.svg"
+                alt="Nivel Prioridad"
+                className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
+              />
+              <span className="text-xl font-bold text-white">Prioridades</span>
+              <span className="text-base text-gray-300 text-center">
+                Colas con prioridades
               </span>
-            )}
-          </button>
-          {/* Tarjeta M/D/1 */}
-          <button
-            onClick={() => setModelo("MD1")}
-            className={`group relative p-8 rounded-3xl shadow-lg border-2 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-300
+              {modelo === "Prioridad" && (
+                <span className="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
+                  Seleccionado
+                </span>
+              )}
+            </button>
+            {/* Tarjeta M/D/1 */}
+            <button
+              onClick={() => setModelo("MD1")}
+              className={`group relative p-8 rounded-3xl shadow-lg border-2 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-300
                 ${
                   modelo === "MD1"
                     ? "border-blue-500 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"
                     : "border-gray-600 bg-gray-800"
                 }
               hover:border-pink-500 hover:shadow-xl hover:-translate-y-2`}
-            title="Modelo M/D/1"
-          >
-            <img
-              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3af.svg"
-              alt="M/D/1"
-              className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
-            />
-            <span className="text-xl font-bold text-white">M/D/1</span>
-            <span className="text-base text-gray-300 text-center">
-              Servicio determinístico
-            </span>
-            {modelo === "MD1" && (
-              <span className="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
-                Seleccionado
+              title="Modelo M/D/1"
+              onMouseEnter={() => setHoveredModel("MD1")}
+              onMouseLeave={() => setHoveredModel(null)}
+            >
+              <img
+                src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3af.svg"
+                alt="M/D/1"
+                className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
+              />
+              <span className="text-xl font-bold text-white">M/D/1</span>
+              <span className="text-base text-gray-300 text-center">
+                Servicio determinístico
               </span>
-            )}
-          </button>
-          {/* Tarjeta M/G/1 */}
-          <button
-            onClick={() => setModelo("MG1")}
-            className={`group relative p-8 rounded-3xl shadow-lg border-2 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-300
+              {modelo === "MD1" && (
+                <span className="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
+                  Seleccionado
+                </span>
+              )}
+            </button>
+            {/* Tarjeta M/G/1 */}
+            <button
+              onClick={() => setModelo("MG1")}
+              className={`group relative p-8 rounded-3xl shadow-lg border-2 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-300
               ${
                 modelo === "MG1"
                   ? "border-blue-500 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"
                   : "border-gray-600 bg-gray-800"
               }
               hover:border-pink-500 hover:shadow-xl hover:-translate-y-2`}
-            title="Modelo M/G/1"
-          >
-            <img
-              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f500.svg"
-              alt="MM2"
-              className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
-            />
-            <span className="text-xl font-bold text-white">M/G/1</span>
-            <span className="text-base text-gray-300 text-center">
-              Servicio general
-            </span>
-            {modelo === "MG1" && (
-              <span className="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
-                Seleccionado
+              title="Modelo M/G/1"
+              onMouseEnter={() => setHoveredModel("MG1")}
+              onMouseLeave={() => setHoveredModel(null)}
+            >
+              <img
+                src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f500.svg"
+                alt="MM2"
+                className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
+              />
+              <span className="text-xl font-bold text-white">M/G/1</span>
+              <span className="text-base text-gray-300 text-center">
+                Servicio general
               </span>
+              {modelo === "MG1" && (
+                <span className="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
+                  Seleccionado
+                </span>
+              )}
+            </button>
+          </div>
+          {/* Modal teoría fijo en lateral derecho */}
+          <AnimatePresence>
+            {hoveredModel && teorias[hoveredModel] && (
+              <motion.div
+                initial={{ opacity: 0, x: 60 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 60 }}
+                transition={{ duration: 0.3 }}
+                className="absolute top-0 left-full ml-8 w-80 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 rounded-2xl shadow-2xl p-8 z-20 border-2 border-blue-500"
+                style={{ minHeight: "200px" }}
+              >
+                <h5 className="text-xl font-bold text-blue-400 mb-3">
+                  {teorias[hoveredModel].titulo}
+                </h5>
+                <p className="text-base text-gray-200">
+                  {teorias[hoveredModel].texto}
+                </p>
+              </motion.div>
             )}
-          </button>
+          </AnimatePresence>
         </div>
         {/* Renderizar el modelo seleccionado */}
         <div className="mt-12">
