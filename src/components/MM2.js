@@ -47,7 +47,13 @@ const MM2 = () => {
       if (!mu) newErrors.mu = "Este campo es obligatorio";
       if (mu && parseFloat(mu) <= 0)
         newErrors.general = "El tiempo de servicio debe ser positivo";
-    } else if (selection === "DISTINTO MU" || selection === "UNIFICADO") {
+    } else if (selection === "DISTINTO MU") {
+      if (!mu1) newErrors.mu1 = "Este campo es obligatorio";
+      if (!mu2) newErrors.mu2 = "Este campo es obligatorio";
+      if (mu1 && mu2 && (μ1 <= 0 || μ2 <= 0))
+        newErrors.general = "Las tasas de servicio deben ser positivas";
+      // No bloquear si λ >= μ1 + μ2, solo avisar en resultados
+    } else if (selection === "UNIFICADO") {
       if (!mu1) newErrors.mu1 = "Este campo es obligatorio";
       if (!mu2) newErrors.mu2 = "Este campo es obligatorio";
       if (mu1 && mu2 && (μ1 <= 0 || μ2 <= 0))
@@ -131,16 +137,10 @@ const MM2 = () => {
     }
     // Modo Distinto (μ)
     if (selection === "DISTINTO MU") {
-      let μ1calc, μ2calc, μs;
-      if (muUnit === "horas") {
-        μ1calc = parseFloat(mu1);
-        μ2calc = parseFloat(mu2);
-        μs = μ1calc + μ2calc;
-      } else if (muUnit === "minutos") {
-        μ1calc = (1 / parseFloat(mu1)) * 60;
-        μ2calc = (1 / parseFloat(mu2)) * 60;
-        μs = μ1calc + μ2calc;
-      }
+      // En este modo, los valores ingresados son horas directamente
+      const μ1calc = parseFloat(mu1);
+      const μ2calc = parseFloat(mu2);
+      const μs = μ1calc + μ2calc;
       const ρ = λ / μs;
       const Ls = ρ / (1 - ρ);
       const Ws = Ls / λ;
@@ -150,9 +150,12 @@ const MM2 = () => {
       const Wq = Lq / λ;
       const ambosOcupados = 1 - P0 - P1;
       const inestable = ρ >= 1;
+      const saturado = λ >= μs;
       setResults({
         ρ,
         ρPorcentaje: ρ * 100,
+        μ1: μ1calc,
+        μ2: μ2calc,
         μs,
         Ws,
         Ls,
@@ -162,6 +165,7 @@ const MM2 = () => {
         Lq,
         Wq,
         inestable,
+        saturado,
       });
       return;
     }
@@ -246,7 +250,6 @@ const MM2 = () => {
       const isRhoUnstable = rho >= rhoCritico;
       const isRhoThreeUnstable = rhoThree >= rhoCritico;
 
-      // Standard M/M/2 calculations
       const Ls = rho / (1 - rho);
       const Ws = Ls / (parseFloat(lambda) || 1);
       const P0 = 1 - rho;
@@ -662,10 +665,8 @@ const MM2 = () => {
                         Tiempo medio de servicio 1 (ingresado)
                       </h4>
                       <p className="text-2xl font-bold text-white">
-                        {formatNumber(parseFloat(mu1))}{" "}
-                        <span className="text-base text-gray-400">
-                          {muUnit}
-                        </span>
+                        {formatNumber(results.μ1)}{" "}
+                        <span className="text-base text-gray-400">horas</span>
                       </p>
                       <p className="text-sm text-gray-400 mt-1">
                         Tiempo de servicio operador 1.
@@ -676,10 +677,8 @@ const MM2 = () => {
                         Tiempo medio de servicio 2 (ingresado)
                       </h4>
                       <p className="text-2xl font-bold text-white">
-                        {formatNumber(parseFloat(mu2))}{" "}
-                        <span className="text-base text-gray-400">
-                          {muUnit}
-                        </span>
+                        {formatNumber(results.μ2)}{" "}
+                        <span className="text-base text-gray-400">horas</span>
                       </p>
                       <p className="text-sm text-gray-400 mt-1">
                         Tiempo de servicio operador 2.
@@ -689,8 +688,7 @@ const MM2 = () => {
                 )}
                 <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                   <h4 className="text-lg font-medium text-emerald-400">
-                    Tasa total de servicio (
-                    {selection === "MU IGUALES" ? "2μ" : "μ₁ + μ₂"})
+                    Tasa total de servicio (μ₁ + μ₂)
                   </h4>
                   <p className="text-2xl font-bold text-white">
                     {formatNumber(results.μs)}{" "}
@@ -720,7 +718,19 @@ const MM2 = () => {
                   </label>
                 </div>
               )}
-              {results.inestable && (
+              {results.saturado && (
+                <div className="col-span-1 md:col-span-2 lg:col-span-3 p-4 mb-4 bg-red-900 text-white rounded-lg flex items-center space-x-3 shadow-md">
+                  <FaExclamationTriangle
+                    className="text-yellow-400"
+                    size={20}
+                  />
+                  <span className="text-sm font-medium">
+                    ¡Atención! El sistema está saturado o colapsado (λ ≥ μ₁ +
+                    μ₂). Los resultados pueden no ser representativos.
+                  </span>
+                </div>
+              )}
+              {!results.saturado && results.inestable && (
                 <div className="col-span-1 md:col-span-2 lg:col-span-3 p-4 mb-4 bg-red-900 text-white rounded-lg flex items-center space-x-3 shadow-md">
                   <FaExclamationTriangle
                     className="text-yellow-400"
