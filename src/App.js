@@ -4,7 +4,7 @@ import MM1 from "./components/MM1";
 import MM2 from "./components/MM2";
 import MM1N from "./components/MM1N";
 import MG1 from "./components/MG1";
-import MD1 from "./components/MD1"; 
+import MD1 from "./components/MD1";
 import Prioridad from "./components/Prioridades";
 
 import { FaCogs, FaChartLine, FaClock } from "react-icons/fa";
@@ -236,32 +236,32 @@ function App() {
             )}
           </button>
           {/* Tarjeta M/D/1 */}
-          <div
+          <button
             onClick={() => setModelo("MD1")}
             className={`group relative p-8 rounded-3xl shadow-lg border-2 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-300
                 ${
-                modelo === "MG1"
-                  ? "border-blue-500 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"
-                  : "border-gray-600 bg-gray-800"
+                  modelo === "MD1"
+                    ? "border-blue-500 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"
+                    : "border-gray-600 bg-gray-800"
                 }
               hover:border-pink-500 hover:shadow-xl hover:-translate-y-2`}
-            title="Modelo MD1"
+            title="Modelo M/D/1"
           >
             <img
               src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3af.svg"
               alt="M/D/1"
-              className="w-16 h-16 mb-3"
+              className="w-16 h-16 mb-3 group-hover:scale-110 transition-transform"
             />
             <span className="text-xl font-bold text-white">M/D/1</span>
             <span className="text-base text-gray-300 text-center">
-              Servicio deterministico
+              Servicio determinístico
             </span>
             {modelo === "MD1" && (
               <span className="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
                 Seleccionado
               </span>
             )}
-          </div>
+          </button>
           {/* Tarjeta M/G/1 */}
           <button
             onClick={() => setModelo("MG1")}
@@ -298,7 +298,6 @@ function App() {
           {modelo === "MG1" && <MG1 />}
           {modelo === "MD1" && <MD1 />}
           {modelo === "Prioridad" && <Prioridad />}
-
         </div>
       </main>
 
