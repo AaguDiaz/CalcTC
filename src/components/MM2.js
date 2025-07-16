@@ -8,14 +8,14 @@ const MM2 = () => {
   const [mu, setMu] = useState("");
   const [mu1, setMu1] = useState("");
   const [mu2, setMu2] = useState("");
+  const [mu3, setMu3] = useState(""); // New state for third server
+  const [rhoCritico3, setRhoCritico3] = useState(""); // New state for critical rho
   const [n, setN] = useState("");
   const [selection, setSelection] = useState("MU IGUALES");
   const [results, setResults] = useState(null);
   const [errors, setErrors] = useState({});
-  // Unidad para la tasa de servicio
   const [muUnit, setMuUnit] = useState("horas");
   const [showClearModal, setShowClearModal] = useState(false);
-  // Mostrar/ocultar probabilidad de ambos ocupados
   const [showAmbosOcupados, setShowAmbosOcupados] = useState(true);
 
   // Limpiar todos los campos y resultados al cambiar selección
@@ -25,6 +25,8 @@ const MM2 = () => {
     setMu("");
     setMu1("");
     setMu2("");
+    setMu3("");
+    setRhoCritico3("");
     setN("");
     setResults(null);
     setErrors({});
@@ -35,6 +37,8 @@ const MM2 = () => {
     const λ = parseFloat(lambda);
     const μ1 = parseFloat(mu1);
     const μ2 = parseFloat(mu2);
+    const μ3 = parseFloat(mu3);
+    const rhoCrit = parseFloat(rhoCritico3);
     const nValue = parseFloat(n);
     const newErrors = {};
 
@@ -43,7 +47,7 @@ const MM2 = () => {
       if (!mu) newErrors.mu = "Este campo es obligatorio";
       if (mu && parseFloat(mu) <= 0)
         newErrors.general = "El tiempo de servicio debe ser positivo";
-    } else if (selection === "SIN SELECCIÓN" || selection === "CON SELECCIÓN") {
+    } else if (selection === "DISTINTO MU" || selection === "UNIFICADO") {
       if (!mu1) newErrors.mu1 = "Este campo es obligatorio";
       if (!mu2) newErrors.mu2 = "Este campo es obligatorio";
       if (mu1 && mu2 && (μ1 <= 0 || μ2 <= 0))
@@ -51,6 +55,19 @@ const MM2 = () => {
       if (lambda && mu1 && mu2 && λ >= μ1 + μ2)
         newErrors.general =
           "λ debe ser menor que μ1 + μ2 para un sistema estable";
+    } else if (selection === "EVALUAR TERCER SERVIDOR") {
+      if (!mu) newErrors.mu = "Este campo es obligatorio";
+      if (!mu3) newErrors.mu3 = "Este campo es obligatorio";
+      if (!rhoCritico3) newErrors.rhoCritico3 = "Este campo es obligatorio";
+      if (mu && parseFloat(mu) <= 0)
+        newErrors.mu = "La tasa de servicio debe ser positiva";
+      if (mu3 && parseFloat(mu3) <= 0)
+        newErrors.mu3 = "La tasa del tercer servidor debe ser positiva";
+      if (rhoCritico3 && (rhoCrit <= 0 || rhoCrit > 1))
+        newErrors.rhoCritico3 = "ρ crítico debe estar entre 0 y 1";
+      if (lambda && mu && mu3 && λ >= 2 * parseFloat(mu) + μ3)
+        newErrors.general =
+          "λ debe ser menor que 2μ + μ3 para un sistema estable";
     }
     if (
       selection === "MU IGUALES" &&
@@ -150,7 +167,6 @@ const MM2 = () => {
     }
     // Unificación de Sin selección y Con selección
     if (selection === "UNIFICADO") {
-      // μ1 y μ2 en clientes/hora según unidad
       let μ1rate, μ2rate, μsUnificado;
       if (muUnit === "horas") {
         μ1rate = parseFloat(mu1);
@@ -163,8 +179,6 @@ const MM2 = () => {
       }
       const rhoNormal = λ / μsUnificado;
 
-      // Sin selección
-      // Para la fórmula de sin selección, necesitamos los tiempos medios de servicio en horas
       let μ1h, μ2h;
       if (muUnit === "horas") {
         μ1h = parseFloat(mu1);
@@ -173,23 +187,15 @@ const MM2 = () => {
         μ1h = parseFloat(mu1) / 60;
         μ2h = parseFloat(mu2) / 60;
       }
-      // r = μ2h / μ1h
       const rSin = μ2h / μ1h;
-      // rho crítico = 1 - sqrt((r × (1 + r)) / (1 + r²))
       const rhoCriticoSin =
         1 - Math.sqrt((rSin * (1 + rSin)) / (1 + Math.pow(rSin, 2)));
-      // a = (2 * μ1h * μ2h) / (μ1h + μ2h)
       const aSin = (2 * μ1h * μ2h) / (μ1h + μ2h);
-      // π0 = (1 - rhoNormal) / (1 - rhoNormal + λ / aSin)
       const pi0Sin = (1 - rhoNormal) / (1 - rhoNormal + λ / aSin);
-      // N = λ / ((1 - rhoNormal) * (λ + (1 - rhoNormal) * aSin))
       const NSin = λ / ((1 - rhoNormal) * (λ + (1 - rhoNormal) * aSin));
-      // Ws = N / λ (en horas)
       const WsSin = NSin / λ;
 
-      // Con selección
       const rCon = μ2rate / μ1rate;
-      // cuadrática: rhoCritico^2 * (1 + r^2) - rhoCritico * (2 + r^2) - (2r - 1)*(1 + r) = 0
       const aQuad = 1 + rCon * rCon;
       const bQuad = -(2 + rCon * rCon);
       const cQuad = -(2 * rCon - 1) * (1 + rCon);
@@ -198,7 +204,6 @@ const MM2 = () => {
       if (discriminant >= 0) {
         rhoCriticoCon = (-bQuad + Math.sqrt(discriminant)) / (2 * aQuad);
       }
-      // aCon usa tasas
       const aCon =
         ((2 * λ + μsUnificado) * μ1rate * μ2rate) /
         (μsUnificado * (λ + μ2rate));
@@ -210,14 +215,12 @@ const MM2 = () => {
         selectionType: "UNIFICADO",
         rhoNormal,
         μs: μsUnificado,
-        // Sin selección
         sin: {
           rhoCritico: rhoCriticoSin,
           pi0: pi0Sin,
           N: NSin,
           Ws: WsSin,
         },
-        // Con selección
         con: {
           rhoCritico: rhoCriticoCon,
           pi0: pi0Con,
@@ -225,6 +228,71 @@ const MM2 = () => {
           Ws: WsCon,
           discriminant,
         },
+      });
+      return;
+    }
+    // Evaluar tercer servidor
+    if (selection === "EVALUAR TERCER SERVIDOR") {
+      // Usar los valores ingresados directamente para mus y musThree
+      const muValue = parseFloat(mu);
+      const mu3Value = parseFloat(mu3);
+      const mus = 2 * muValue;
+      const musThree = muValue + muValue + mu3Value;
+      const rhoCritico = parseFloat(rhoCritico3);
+      const rho = lambda && mus ? parseFloat(lambda) / mus : 0;
+      const rhoThree = lambda && musThree ? parseFloat(lambda) / musThree : 0;
+
+      // Stability checks
+      const isRhoUnstable = rho >= rhoCritico;
+      const isRhoThreeUnstable = rhoThree >= rhoCritico;
+
+      // Standard M/M/2 calculations
+      const Ls = rho / (1 - rho);
+      const Ws = Ls / (parseFloat(lambda) || 1);
+      const P0 = 1 - rho;
+      const P1 = rho * P0;
+      const Lq = Math.pow(rho, 2) / (1 - rho);
+      const Wq = Lq / (parseFloat(lambda) || 1);
+      const ambosOcupados = 1 - P0 - P1;
+      const inestable = rho >= 1;
+
+      // M/M/3 calculations
+      const LsThree = rhoThree / (1 - rhoThree);
+      const WsThree = LsThree / (parseFloat(lambda) || 1);
+      const P0Three = 1 - rhoThree;
+      const P1Three = rhoThree * P0Three;
+      const LqThree = Math.pow(rhoThree, 2) / (1 - rhoThree);
+      const WqThree = LqThree / (parseFloat(lambda) || 1);
+      const todosOcupados = 1 - P0Three - P1Three;
+
+      setResults({
+        ρ: rho,
+        ρPorcentaje: rho * 100,
+        ρThree: rhoThree,
+        ρThreePorcentaje: rhoThree * 100,
+        rhoCritico,
+        isRhoUnstable,
+        isRhoThreeUnstable,
+        μ: muValue,
+        μ3: mu3Value,
+        μs: mus,
+        μsThree: musThree,
+        Ws,
+        Ls,
+        P0,
+        P1,
+        ambosOcupados,
+        Lq,
+        Wq,
+        WsThree,
+        LsThree,
+        P0Three,
+        P1Three,
+        todosOcupados,
+        LqThree,
+        WqThree,
+        inestable,
+        inestableThree: rhoThree >= 1,
       });
       return;
     }
@@ -236,6 +304,8 @@ const MM2 = () => {
     setMu("");
     setMu1("");
     setMu2("");
+    setMu3("");
+    setRhoCritico3("");
     setN("");
     setSelection("MU IGUALES");
     setResults(null);
@@ -261,7 +331,6 @@ const MM2 = () => {
       {/* Formulario de entrada de datos */}
       <div className="bg-gradient-to-br from-gray-800 to-gray-700 rounded-2xl p-8 shadow-lg">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Campo para tasa de llegada */}
           <div className="relative">
             <label
               htmlFor="lambda"
@@ -285,7 +354,6 @@ const MM2 = () => {
             )}
           </div>
 
-          {/* Selector de modo de cálculo */}
           <div className="relative">
             <label
               htmlFor="selection"
@@ -302,10 +370,12 @@ const MM2 = () => {
               <option value="MU IGUALES">Iguales (μ)</option>
               <option value="DISTINTO MU">Distinto (μ)</option>
               <option value="UNIFICADO">Sin selección y con selección</option>
+              <option value="EVALUAR TERCER SERVIDOR">
+                Evaluar tercer servidor
+              </option>
             </select>
           </div>
 
-          {/* Campos para tasas de servicio según selección */}
           {selection === "MU IGUALES" && (
             <div className="relative">
               <label
@@ -326,7 +396,6 @@ const MM2 = () => {
                   min="0"
                   required
                 />
-                {/* Selector de unidad de tasa de servicio (solo horas y minutos) */}
                 <select
                   value={muUnit}
                   onChange={(e) => setMuUnit(e.target.value)}
@@ -350,33 +419,21 @@ const MM2 = () => {
                 >
                   Tasa de servicio 1 (μ₁)
                 </label>
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    id="mu1"
-                    value={mu1}
-                    onChange={(e) => setMu1(e.target.value)}
-                    className="w-full p-4 pt-6 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
-                    placeholder="Ej. 2"
-                    step="0.1"
-                    min="0"
-                    required
-                  />
-                  {/* Selector de unidad de tasa de servicio (solo horas y minutos) */}
-                  <select
-                    value={muUnit}
-                    onChange={(e) => setMuUnit(e.target.value)}
-                    className="p-2 bg-gray-700 text-gray-100 border border-gray-600 rounded-lg focus:outline-none cursor-pointer"
-                  >
-                    <option value="horas">horas</option>
-                    <option value="minutos">minutos</option>
-                  </select>
-                </div>
+                <input
+                  type="number"
+                  id="mu1"
+                  value={mu1}
+                  onChange={(e) => setMu1(e.target.value)}
+                  className="w-full p-4 pt-6 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  placeholder="Ej: 5 (clientes/hora)"
+                  step="0.1"
+                  min="0"
+                  required
+                />
                 {errors.mu1 && (
                   <p className="text-red-500 text-sm mt-1">{errors.mu1}</p>
                 )}
               </div>
-
               <div className="relative">
                 <label
                   htmlFor="mu2"
@@ -384,36 +441,96 @@ const MM2 = () => {
                 >
                   Tasa de servicio 2 (μ₂)
                 </label>
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    id="mu2"
-                    value={mu2}
-                    onChange={(e) => setMu2(e.target.value)}
-                    className="w-full p-4 pt-6 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
-                    placeholder="Ej. 3"
-                    step="0.1"
-                    min="0"
-                    required
-                  />
-                  {/* Selector de unidad de tasa de servicio (solo horas y minutos) */}
-                  <select
-                    value={muUnit}
-                    onChange={(e) => setMuUnit(e.target.value)}
-                    className="p-2 bg-gray-700 text-gray-100 border border-gray-600 rounded-lg focus:outline-none cursor-pointer"
-                  >
-                    <option value="horas">horas</option>
-                    <option value="minutos">minutos</option>
-                  </select>
-                </div>
+                <input
+                  type="number"
+                  id="mu2"
+                  value={mu2}
+                  onChange={(e) => setMu2(e.target.value)}
+                  className="w-full p-4 pt-6 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  placeholder="Ej: 9 (clientes/hora)"
+                  step="0.1"
+                  min="0"
+                  required
+                />
                 {errors.mu2 && (
                   <p className="text-red-500 text-sm mt-1">{errors.mu2}</p>
                 )}
               </div>
             </>
           )}
-
-          {/* Campo para n solo si es MU IGUALES */}
+          {selection === "EVALUAR TERCER SERVIDOR" && (
+            <>
+              <div className="relative">
+                <label
+                  htmlFor="mu"
+                  className="block text-emerald-400 text-base font-medium mb-2"
+                >
+                  Tasa de servicio (μ)
+                </label>
+                <input
+                  type="number"
+                  id="mu"
+                  value={mu}
+                  onChange={(e) => setMu(e.target.value)}
+                  className="w-full p-4 pt-6 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  placeholder="Ej. 3 (clientes/hora)"
+                  step="0.1"
+                  min="0"
+                  required
+                />
+                {errors.mu && (
+                  <p className="text-red-500 text-sm mt-1">{errors.mu}</p>
+                )}
+              </div>
+              <div className="relative">
+                <label
+                  htmlFor="mu3"
+                  className="block text-emerald-400 text-base font-medium mb-2"
+                >
+                  Tasa de servicio tercer servidor (μ₃)
+                </label>
+                <input
+                  type="number"
+                  id="mu3"
+                  value={mu3}
+                  onChange={(e) => setMu3(e.target.value)}
+                  className="w-full p-4 pt-6 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  placeholder="Ej. 4 (clientes/hora)"
+                  step="0.1"
+                  min="0"
+                  required
+                />
+                {errors.mu3 && (
+                  <p className="text-red-500 text-sm mt-1">{errors.mu3}</p>
+                )}
+              </div>
+              <div className="relative">
+                <label
+                  htmlFor="rhoCritico3"
+                  className="block text-emerald-400 text-base font-medium mb-2"
+                >
+                  ρ crítico
+                </label>
+                <input
+                  type="number"
+                  id="rhoCritico3"
+                  value={rhoCritico3}
+                  onChange={(e) => setRhoCritico3(e.target.value)}
+                  className="w-full p-4 pt-6 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  placeholder="Ej. 0.85"
+                  step="0.01"
+                  min="0"
+                  max="1"
+                  required
+                />
+                {errors.rhoCritico3 && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.rhoCritico3}
+                  </p>
+                )}
+              </div>
+            </>
+          )}
           {selection === "MU IGUALES" && (
             <div className="relative">
               <label
@@ -439,7 +556,6 @@ const MM2 = () => {
           )}
         </div>
 
-        {/* Mensaje de error general */}
         {errors.general && (
           <div className="mt-4 p-4 bg-red-900 text-white rounded-lg flex items-center space-x-3 shadow-md">
             <FaExclamationTriangle className="text-yellow-400" size={20} />
@@ -447,7 +563,6 @@ const MM2 = () => {
           </div>
         )}
 
-        {/* Botones de acción */}
         <div className="mt-6 flex space-x-4">
           <button
             onClick={calculateMM2}
@@ -464,7 +579,6 @@ const MM2 = () => {
         </div>
       </div>
 
-      {/* Modal de confirmación para limpiar campos */}
       <AnimatePresence>
         {showClearModal && (
           <motion.div
@@ -505,7 +619,6 @@ const MM2 = () => {
         )}
       </AnimatePresence>
 
-      {/* Resultados */}
       {results && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -513,10 +626,8 @@ const MM2 = () => {
           transition={{ duration: 0.5 }}
           className="mt-8 p-8 bg-gradient-to-br from-gray-800 to-gray-700 rounded-2xl shadow-lg"
         >
-          {/* Resultados para MU IGUALES y DISTINTO MU */}
           {(selection === "MU IGUALES" || selection === "DISTINTO MU") && (
             <React.Fragment>
-              {/* Mostrar info de entrada y tasas */}
               <div className="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                   <h4 className="text-lg font-medium text-emerald-400">
@@ -592,7 +703,6 @@ const MM2 = () => {
                   </p>
                 </div>
               </div>
-              {/* Checkbox para mostrar/ocultar probabilidad de ambos ocupados */}
               {selection === "DISTINTO MU" && (
                 <div className="mb-4 flex items-center space-x-2">
                   <input
@@ -623,7 +733,6 @@ const MM2 = () => {
                 </div>
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Utilización */}
                 <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                   <h4 className="text-lg font-medium text-emerald-400">
                     Utilización (ρ)
@@ -638,7 +747,6 @@ const MM2 = () => {
                     Proporción del tiempo que los servidores están ocupados.
                   </p>
                 </div>
-                {/* Tiempo en sistema */}
                 <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                   <h4 className="text-lg font-medium text-emerald-400">
                     Tiempo en sistema (W
@@ -659,7 +767,6 @@ const MM2 = () => {
                     Tiempo promedio en el sistema.
                   </p>
                 </div>
-                {/* Clientes en sistema */}
                 <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                   <h4 className="text-lg font-medium text-emerald-400">
                     Clientes en sistema (L
@@ -675,7 +782,6 @@ const MM2 = () => {
                     Promedio de clientes en el sistema.
                   </p>
                 </div>
-                {/* Probabilidad de 0 clientes */}
                 <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                   <h4 className="text-lg font-medium text-emerald-400">
                     Prob. 0 clientes (P₀)
@@ -687,7 +793,6 @@ const MM2 = () => {
                     Probabilidad de 0 clientes.
                   </p>
                 </div>
-                {/* Tiempo en cola */}
                 <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                   <h4 className="text-lg font-medium text-emerald-400">
                     Tiempo en cola (Wq)
@@ -704,7 +809,6 @@ const MM2 = () => {
                     Tiempo promedio en cola.
                   </p>
                 </div>
-                {/* Clientes en cola */}
                 <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                   <h4 className="text-lg font-medium text-emerald-400">
                     Clientes en cola (Lq)
@@ -716,7 +820,6 @@ const MM2 = () => {
                     Promedio de clientes en cola.
                   </p>
                 </div>
-                {/* Probabilidad de ambos operadores ocupados (opcional) */}
                 {selection === "DISTINTO MU" && showAmbosOcupados && (
                   <div className="p-4 bg-gray-900 rounded-lg shadow-md col-span-1 md:col-span-2 lg:col-span-3">
                     <h4 className="text-lg font-medium text-emerald-400">
@@ -734,7 +837,6 @@ const MM2 = () => {
                     </p>
                   </div>
                 )}
-                {/* Probabilidad para n clientes */}
                 {selection === "MU IGUALES" && results.Pn !== null && (
                   <div className="p-4 bg-gray-900 rounded-lg shadow-md col-span-1 md:col-span-2 lg:col-span-3">
                     <h4 className="text-lg font-medium text-emerald-400">
@@ -748,7 +850,6 @@ const MM2 = () => {
               </div>
             </React.Fragment>
           )}
-          {/* Resultados para UNIFICADO (Sin selección y Con selección) */}
           {selection === "UNIFICADO" && results && (
             <>
               <div className="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -782,7 +883,6 @@ const MM2 = () => {
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-                {/* Sin selección */}
                 <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                   <h4 className="text-lg font-medium text-emerald-400 mb-2">
                     Sin selección
@@ -809,7 +909,6 @@ const MM2 = () => {
                     </div>
                   </div>
                 </div>
-                {/* Con selección */}
                 <div className="p-4 bg-gray-900 rounded-lg shadow-md">
                   <h4 className="text-lg font-medium text-emerald-400 mb-2">
                     Con selección
@@ -839,6 +938,80 @@ const MM2 = () => {
                   </div>
                 </div>
               </div>
+            </>
+          )}
+          {selection === "EVALUAR TERCER SERVIDOR" && results && (
+            <>
+              {/* Solo mostrar rho y mensajes de estabilidad */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                <div className="p-4 bg-gray-900 rounded-lg shadow-md">
+                  <h4 className="text-lg font-medium text-emerald-400 mb-2">
+                    Sistema con dos servidores
+                  </h4>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="font-semibold">Utilización (ρ):</span>{" "}
+                      {formatNumber(results.ρ)}{" "}
+                      <span className="text-base text-gray-400">
+                        ({formatNumber(results.ρPorcentaje)}%)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 bg-gray-900 rounded-lg shadow-md">
+                  <h4 className="text-lg font-medium text-emerald-400 mb-2">
+                    Sistema con tres servidores
+                  </h4>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="font-semibold">Utilización (ρ):</span>{" "}
+                      {formatNumber(results.ρThree)}{" "}
+                      <span className="text-base text-gray-400">
+                        ({formatNumber(results.ρThreePorcentaje)}%)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Mensaje de recomendación sobre agregar el tercer servidor */}
+              {(() => {
+                const rho2 = results.ρ;
+                const rho3 = results.ρThree;
+                const rhoCrit = results.rhoCritico;
+                let mensaje = "";
+                let color = "bg-blue-900";
+                if (rho2 > rhoCrit && rho3 < rhoCrit) {
+                  mensaje = `Conviene agregar el tercer servidor. El sistema con dos servidores está más congestionado que el crítico, pero con tres servidores estaría por debajo del límite.`;
+                  color = "bg-green-900";
+                } else if (rho2 < rhoCrit) {
+                  mensaje = `No hace falta agregar el tercer servidor. El sistema con dos servidores está por debajo del límite crítico.`;
+                  color = "bg-emerald-900";
+                } else if (rho2 === rho3) {
+                  mensaje = `Indistinto. Ambos sistemas tienen la misma congestión.`;
+                  color = "bg-yellow-900";
+                } else if (rho2 > rhoCrit && rho3 > rhoCrit) {
+                  if (rho2 < rho3) {
+                    mensaje = `No conviene agregar el tercer servidor. Ambos sistemas están por encima del límite crítico, pero el sistema con dos servidores está menos congestionado.`;
+                    color = "bg-red-900";
+                  } else if (rho3 < rho2) {
+                    mensaje = `Conviene agregar el tercer servidor. Ambos sistemas están por encima del límite crítico, pero el sistema con tres servidores está menos congestionado.`;
+                    color = "bg-orange-900";
+                  } else {
+                    mensaje = `Indistinto. Ambos sistemas tienen la misma congestión.`;
+                    color = "bg-yellow-900";
+                  }
+                } else {
+                  mensaje = `Indistinto. Ambos sistemas tienen congestión similar.`;
+                  color = "bg-gray-900";
+                }
+                return (
+                  <div
+                    className={`col-span-1 md:col-span-2 lg:col-span-3 p-4 mb-4 mt-8 ${color} text-white rounded-lg flex items-center space-x-3 shadow-md`}
+                  >
+                    <span className="text-sm font-medium">{mensaje}</span>
+                  </div>
+                );
+              })()}
             </>
           )}
         </motion.div>
