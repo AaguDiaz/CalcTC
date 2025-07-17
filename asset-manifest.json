@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/CalcTC/static/css/main.2b1a645f.css",
+    "main.js": "/CalcTC/static/js/main.6ca1a18e.js",
+    "static/js/453.257ef47e.chunk.js": "/CalcTC/static/js/453.257ef47e.chunk.js",
+    "static/media/queue-illustration.png": "/CalcTC/static/media/queue-illustration.b297ca35c1d0e9f7a331.png",
+    "static/media/calculadora.png": "/CalcTC/static/media/calculadora.d6abfc1cadec2b68b4bd.png",
+    "index.html": "/CalcTC/index.html",
+    "main.2b1a645f.css.map": "/CalcTC/static/css/main.2b1a645f.css.map",
+    "main.6ca1a18e.js.map": "/CalcTC/static/js/main.6ca1a18e.js.map",
+    "453.257ef47e.chunk.js.map": "/CalcTC/static/js/453.257ef47e.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2b1a645f.css",
+    "static/js/main.6ca1a18e.js"
+  ]
+}
