@@ -14,7 +14,7 @@ Una herramienta interactiva para analizar y simular sistemas de colas, ideal par
 - **Simulación visual:** Gráficas y tablas dinámicas.
 - **Interfaz intuitiva:** Fácil de usar y personalizar.
 
-## 🌐 Disponible pronto
+## 🌐 Disponible en: https://aagudiaz.github.io/CalcTC/
 
 La aplicación estará disponible próximamente en la web. ¡Mantente atento para más actualizaciones!
 
